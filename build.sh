@@ -23,5 +23,11 @@ docker build \
 
 docker tag ${IMAGE_NAME}:latest "${IMAGE_NAME}:${BOOTSTRAP_HASKELL_GHC_VERSION}"
 
-docker push "${IMAGE_NAME}:${BOOTSTRAP_HASKELL_GHC_VERSION}"
+DOCKER_USERNAME="$(docker info 2>/dev/null | sed -n 's/^ Username: //p' | head -n 1)"
+if [ "${DOCKER_USERNAME}" != "bjing" ]; then
+  echo "Not pushing images: logged in Docker username is '${DOCKER_USERNAME:-unknown}', expected 'bjing'." >&2
+  exit 1
+fi
+
+docker push "${IMAGE_NAME}:ghc-${BOOTSTRAP_HASKELL_GHC_VERSION}"
 docker push "${IMAGE_NAME}:latest"
