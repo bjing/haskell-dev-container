@@ -1,7 +1,15 @@
 #!/bin/bash
 
 source scripts/install_haskell.env
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <ghc version>"
+  exit 1
+fi
+BOOTSTRAP_HASKELL_GHC_VERSION="$1"
 
+IMAGE_NAME="bjing/haskell-dev-container"
+
+# Build
 docker build \
   --build-arg MINIMAL_INSTALL=${BOOTSTRAP_HASKELL_MINIMAL} \
   --build-arg NONINTERACTIVE=${BOOTSTRAP_HASKELL_NONINTERACTIVE} \
@@ -10,4 +18,10 @@ docker build \
   --build-arg INSTALL_STACK=${BOOTSTRAP_HASKELL_INSTALL_STACK} \
   --build-arg INSTALL_HLS=${BOOTSTRAP_HASKELL_INSTALL_HLS} \
   --build-arg ADJUST_BASHRC=${BOOTSTRAP_HASKELL_ADJUST_BASHRC} \
-  -t haskell-dev-container:latest .
+  -t ${IMAGE_NAME}:latest .
+
+
+docker tag ${IMAGE_NAME}:latest "${IMAGE_NAME}:${BOOTSTRAP_HASKELL_GHC_VERSION}"
+
+docker push "${IMAGE_NAME}:${BOOTSTRAP_HASKELL_GHC_VERSION}"
+docker push "${IMAGE_NAME}:latest"

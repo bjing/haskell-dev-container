@@ -47,4 +47,4 @@ RUN ./install_haskell.sh
 RUN mkdir $USER_HOME/app
 WORKDIR $USER_HOME/app
 
-CMD sleep infinity
+CMD ["sleep", "infinity"]
