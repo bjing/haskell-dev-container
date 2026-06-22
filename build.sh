@@ -26,14 +26,5 @@ docker build \
 # Tag the image with the versioned tag as well
 docker tag ${LATEST_IMAGE_NAME} "${VERSIONED_IMAGE_NAME}"
 
-# Verify that the user is logged in to Docker Hub with the expected username before pushing
-DOCKER_USERNAME="$(docker info 2>/dev/null | sed -n 's/^ Username: //p' | head -n 1)"
-if [ "${DOCKER_USERNAME}" != "bjing" ]; then
-  echo "Not pushing images: logged in Docker username is '${DOCKER_USERNAME:-unknown}', expected 'bjing'." >&2
-  exit 1
-else
-  echo "Logged in to Docker Hub as '${DOCKER_USERNAME}', pushing images..."
-fi
-
-docker push "${VERSIONED_IMAGE_NAME}"
-docker push "${LATEST_IMAGE_NAME}"
+#docker push "${VERSIONED_IMAGE_NAME}"
+#docker push "${LATEST_IMAGE_NAME}"
