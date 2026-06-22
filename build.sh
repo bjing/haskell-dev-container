@@ -8,6 +8,8 @@ fi
 BOOTSTRAP_HASKELL_GHC_VERSION="$1"
 
 IMAGE_NAME="bjing/haskell-dev-container"
+VERSIONED_IMAGE_NAME="${IMAGE_NAME}:ghc-${BOOTSTRAP_HASKELL_GHC_VERSION}"
+LATEST_IMAGE_NAME="${IMAGE_NAME}:latest"
 
 # Build
 docker build \
@@ -18,16 +20,20 @@ docker build \
   --build-arg INSTALL_STACK=${BOOTSTRAP_HASKELL_INSTALL_STACK} \
   --build-arg INSTALL_HLS=${BOOTSTRAP_HASKELL_INSTALL_HLS} \
   --build-arg ADJUST_BASHRC=${BOOTSTRAP_HASKELL_ADJUST_BASHRC} \
-  -t ${IMAGE_NAME}:latest .
+  -t ${LATEST_IMAGE_NAME} .
 
 
-docker tag ${IMAGE_NAME}:latest "${IMAGE_NAME}:${BOOTSTRAP_HASKELL_GHC_VERSION}"
+# Tag the image with the versioned tag as well
+docker tag ${LATEST_IMAGE_NAME} "${VERSIONED_IMAGE_NAME}"
 
+# Verify that the user is logged in to Docker Hub with the expected username before pushing
 DOCKER_USERNAME="$(docker info 2>/dev/null | sed -n 's/^ Username: //p' | head -n 1)"
 if [ "${DOCKER_USERNAME}" != "bjing" ]; then
   echo "Not pushing images: logged in Docker username is '${DOCKER_USERNAME:-unknown}', expected 'bjing'." >&2
   exit 1
+else
+  echo "Logged in to Docker Hub as '${DOCKER_USERNAME}', pushing images..."
 fi
 
-docker push "${IMAGE_NAME}:ghc-${BOOTSTRAP_HASKELL_GHC_VERSION}"
-docker push "${IMAGE_NAME}:latest"
+docker push "${VERSIONED_IMAGE_NAME}"
+docker push "${LATEST_IMAGE_NAME}"
